@@ -1,6 +1,6 @@
 # CloudVault Deployment & Setup Guide
 
-This comprehensive guide provides step-by-step instructions to provision, configure, deploy, and verify the CloudVault platform in your own AWS environment.
+This guide provides step-by-step instructions to provision, configure, deploy, and verify the CloudVault platform in your own AWS environment.
 
 ---
 
@@ -14,11 +14,11 @@ Ensure your local development machine contains the following accounts and comman
 
 ---
 
-## Core Deployment Steps
+## Deployment Steps
 
 ### 1. Clone the Repository
 `git clone https://github.com
-cd cloudvault-aws-3tier-devsecops
+cd cloudvault-aws-3tier-devsecops.git`
 
 ### 2. Configure AWS Provider Access
 Authenticate your terminal session using your programmatic IAM access keys:
@@ -38,22 +38,19 @@ terraform apply --auto-approve
 *This step provisions your custom VPC, public/private subnets, Application Load Balancer, EC2 instances, S3 storage, and your RDS MySQL cluster.*
 
 ### 4. SSH CI/CD Server
-    `ssh -i <private-key path> ec2-user@<server-public-ip>`
+`ssh -i <private-key path> ec2-user@<server-public-ip>`
 
 ### 5. Configuration Management via Ansible
 Move to your playbook directory to automate server package installation and configurations:
-```bash
-cd ../ansible
-```
-1. Open the dynamic inventory file (`inventory.ini` or `hosts`) and populate it with your newly provisioned EC2 instances' IP addresses.
+`cd ../ansible`
+1. Open the dynamic inventory file (`inventory.ini` or `hosts`) and populate it with your newly provisioned EC2 instances IP addresses.
+
 2. Fire the global site playbook configuration:
-```bash
-ansible-playbook -i inventory.ini playbooks/site.yml
-```
+`ansible-playbook -i inventory.ini playbooks/site.yml`
 
 ---
 
-## Platform & Pipeline Configurations
+## CI/CD & Pipeline Configurations
 
 ### 5. Define Jenkins Credentials
 To ensure a secure, automated execution flow, log into your Jenkins dashboard and register the following Environment Variables/Credentials in your global store:
@@ -61,72 +58,57 @@ To ensure a secure, automated execution flow, log into your Jenkins dashboard an
 | Credential ID | Type | Target Resource Mapping |
 | :--- | :--- | :--- |
 | `dockerhub-credentials` | Username & Password | Docker Hub central image registry authentication |
-| `DB_HOST` | Secret Text | Your generated Amazon RDS endpoint string |
-| `DB_NAME` | Secret Text | MySQL target relational database name |
-| `DB_USERNAME` | Secret Text | Privileged master database user identity |
-| `DB_PASSWORD` | Secret Text | Secure connection passcode for your RDS instance |
-| `SECRET_KEY` | Secret Text | Encrypted session token secret key for Flask frontend |
-| `AWS_REGION` | Secret Text | Targeted operational AWS cloud deployment region |
-| `S3_BUCKET` | Secret Text | Raw object file storage Amazon S3 bucket name |
-
-### 6. Inspect Kubernetes Cluster Topology
-Establish an SSH session to your master cluster node control plane and confirm cluster operational readiness:
-```bash
-kubectl get nodes
-kubectl get namespaces
-``` 
+| `sonarqubr` | Secret Text |  |
 
 
-<!-- ## Continuous Deployment
+### 6. Check Kubernetes Cluster Ready
+ssh master cluster node and confirm cluster are ready state
 
-### 7. Run the Automated CI/CD Lifecycle
-Commit changes or configure a GitHub Webhook to ping your Jenkins instance. Pushing code updates triggers the automated system orchestration sequence:
+- Cluster Imformation `kubectl cluster-info`
+- Check nodes `kubectl get nodes`
+- Check system pods `kubectl get pods-n kube system`
+- Check all namespace `kubectl get ns`
+- Check workloads `kubectl get all -A`
 
-```text
-[ Jenkins Pipeline Execution Workflow ]
- 📦 1. Source Checkout  ──> 🔬 2. SonarQube SAST Scan  ──> 🐳 3. Docker Image Build
-                                                                    │
- ☸️ 6. K8s Manifest App ──> 🔑 5. ConfigMaps & Secrets ──> 🛑 4. Trivy Vuln Scan
-``` -->
 
-<!-- 
-## 🔎 Verification & Testing
+### 7. Create DevSevOps Pipeline
 
-### 8. Inspect Live Namespace Workloads
-Validate your live application containers running on isolated pod clusters using the following diagnostic queries:
+1. Create GitHub Repo & push clone project
+2. Access Jenkins `http://<cicd-server-ip:8080>`
+3. Install Require plugin `Git` `Github` `Pipeline` `Sonarqube Scanner`
+4. Configure Jenkins (Dockerhub, SonarQube)
+5. Configure SonarQube (generate project token & add to jenkins)
+6. Create pipeline
 
-* **Pod Health Checks**:
-  ```bash
-  kubectl get pods -n cloudvault -o wide
-  ```
-* **Networking Status**:
-  ```bash
-  kubectl get svc -n cloudvault
-  ```
-* **Deployment Replication**:
-  ```bash
-  kubectl get deployment -n cloudvault
-  ```
+*Pipline flow* : 
+**GitHub → Jenkins → SonarQube → Docker Build → Trivy Scan → Docker Hub → Kubernetes Deployment → Live**
 
-### 9. Verify Live Global Traffic Egress
-1. Extract your global web distribution routing layer domain endpoint:
-   ```text
-   https://<your-cloudfront-distribution-id>.cloudfront.net
-   ```
-2. Open the URL in a web browser interface.
-3. Upload a sample file and run back-end logging verifications:
-   * ✓ Confirm the raw asset registers within your dedicated **Amazon S3 Storage Bucket**.
-   * ✓ Assert metadata rows populate inside your isolated **Amazon RDS MySQL Table**.
+### 8. Verify Deployments
+- Check application Running pods `kubectl get pods -n cloudvault`
+- Check deployments `kubectl get deployments -n cloudvault`
+- check service `kubectl get svc -n cloudvault`
+
+**Result**
+- jenkins pipeline completes successfully
+- All pods running
+- The application accessiblr from internet
+
+### 9. Verify Live 
+1. Access app using CloudFront CDN URL
+   `https://<your-cloudfront-distribution-id>.cloudfront.net`
+
+3. Upload a sample file and check verify in mysql
+  - Files store in **Amazon s3 bucket**
+  - Metadata store in **Amazon RDS MySQL**
 
 ---
 
-## 🗑️ Infrastructure Decommissioning
+### Destroy Infrastructure 
 
 ### 10. Clean Cleanup / Teardown
-To avoid ongoing AWS cloud subscription charges, clear out your application-allocated storage objects and purge the underlying structural topology:
+To avoid ongoing AWS cloud charges, clear out your application Infrastructure
 
 ```bash
-# Clean out your S3 files prior to termination running
 cd ../terraform
 terraform destroy --auto-approve
-``` -->
+```
