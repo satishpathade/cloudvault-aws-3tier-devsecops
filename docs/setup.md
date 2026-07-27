@@ -1,34 +1,34 @@
 # CloudVault Deployment & Setup Guide
 
-This guide provides step-by-step instructions to provision, configure, deploy, and verify the CloudVault platform in your own AWS environment.
+This guide walks you through provisioning, configuring, deploying, and validating the CloudVault platform in your AWS environment.
 
 ---
 
 ## Prerequisites
 
-Ensure your local development machine contains the following accounts and command-line interfaces (CLIs):
+Before starting, make sure your local system and accounts are properly set up.
 
 * **Cloud Accounts**: Active Accounts for **AWS**, **Docker Hub**, and **GitHub**.
 * **Installed CLIs**: `aws`, `terraform`, `ansible`, `git`, `docker`.
-* **SSH Configuration**: An active Amazon EC2 Key Pair (`CloudVault-CICD.pem` format) ready in your workspace.
+* **SSH Configuration**: An Amazon EC2 Key Pair (`CloudVault-CICD.pem` format) ready in your workspace.
+
+### Configure AWS Provider Access
+Configure AWS CLI using an IAM user with the required permissions.
+```bash
+aws configure
+```
+*Provide your requested `Access Key ID`, `Secret Access Key`, preferred `Default Region`, and `json` as output format.*
 
 ---
 
 ## Deployment Steps
 
 ### 1. Clone the Repository
-`git clone https://github.com
-cd cloudvault-aws-3tier-devsecops.git`
+`git clone https://github.com/satishpathade/cloudvault-aws-3tier-file-storage.git`
+`cd cloudvault-aws-3tier-devsecops`
 
-### 2. Configure AWS Provider Access
-Authenticate your terminal session using your programmatic IAM access keys:
-```bash
-aws configure
-```
-*Provide your requested `Access Key ID`, `Secret Access Key`, preferred `Default Region`, and `json` as output format.*
-
-### 3. Provision Infrastructure via Terraform
-Navigate to your cloud configuration folder to deploy the underlying network and compute layers:
+### 2. Provision Infrastructure via Terraform
+Deploy the infrastructure using **Terraform**
 ```bash
 cd terraform
 terraform init
@@ -37,15 +37,15 @@ terraform apply --auto-approve
 ```
 *This step provisions your custom VPC, public/private subnets, Application Load Balancer, EC2 instances, S3 storage, and your RDS MySQL cluster.*
 
-### 4. SSH CI/CD Server
+### 3. SSH CI/CD Server
+SSH into jenkins server
 `ssh -i <private-key path> ec2-user@<server-public-ip>`
 
-### 5. Configuration Management via Ansible
-Move to your playbook directory to automate server package installation and configurations:
+### 4. Configuration server using Ansible
+Move to ansible playbook directory to automate server package installation and configurations:
 `cd ../ansible`
-1. Open the dynamic inventory file (`inventory.ini` or `hosts`) and populate it with your newly provisioned EC2 instances IP addresses.
 
-2. Fire the global site playbook configuration:
+Run the complete configuration:
 `ansible-playbook -i inventory.ini playbooks/site.yml`
 
 ---
@@ -55,13 +55,13 @@ Move to your playbook directory to automate server package installation and conf
 ### 5. Define Jenkins Credentials
 To ensure a secure, automated execution flow, log into your Jenkins dashboard and register the following Environment Variables/Credentials in your global store:
 
-| Credential ID | Type | Target Resource Mapping |
-| :--- | :--- | :--- |
-| `dockerhub-credentials` | Username & Password | Docker Hub central image registry authentication |
-| `sonarqubr` | Secret Text |  |
+| Credential ID | Type | Purpose |
+|---------------|------|---------|
+| `dockerhub-credentials` | Username & Password | Docker Hub authentication |
+| `sonarqube-token` | Secret Text | SonarQube authentication |
 
 
-### 6. Check Kubernetes Cluster Ready
+### 6. Verify Kubernetes Cluster
 ssh master cluster node and confirm cluster are ready state
 
 - Cluster Imformation `kubectl cluster-info`
@@ -71,14 +71,14 @@ ssh master cluster node and confirm cluster are ready state
 - Check workloads `kubectl get all -A`
 
 
-### 7. Create DevSevOps Pipeline
+### 7. Create DevSecOps Pipeline
 
 1. Create GitHub Repo & push clone project
 2. Access Jenkins `http://<cicd-server-ip:8080>`
 3. Install Require plugin `Git` `Github` `Pipeline` `Sonarqube Scanner`
-4. Configure Jenkins (Dockerhub, SonarQube)
+4. Configure Jenkins (Dockerhub, SonarQube, Github Webhooks)
 5. Configure SonarQube (generate project token & add to jenkins)
-6. Create pipeline
+6. Create pipeline job
 
 *Pipline flow* : 
 **GitHub → Jenkins → SonarQube → Docker Build → Trivy Scan → Docker Hub → Kubernetes Deployment → Live**
@@ -90,16 +90,18 @@ ssh master cluster node and confirm cluster are ready state
 
 **Result**
 - jenkins pipeline completes successfully
-- All pods running
-- The application accessiblr from internet
+- All pods are in the `running` state 
+- Service are created successfully
+- The application accessible from internet
 
 ### 9. Verify Live 
-1. Access app using CloudFront CDN URL
+1. Open CloudFront distribution URL
    `https://<your-cloudfront-distribution-id>.cloudfront.net`
 
-3. Upload a sample file and check verify in mysql
-  - Files store in **Amazon s3 bucket**
-  - Metadata store in **Amazon RDS MySQL**
+2. Upload a sample file and check verify in mysql
+  - Files is store in **Amazon S3**
+  - Metadata is store in **Amazon RDS MySQL**
+  - File is accessible through the application.
 
 ---
 
@@ -112,3 +114,4 @@ To avoid ongoing AWS cloud charges, clear out your application Infrastructure
 cd ../terraform
 terraform destroy --auto-approve
 ```
+*This removes all Terraform-managed AWS resources created for CloudVault.*
