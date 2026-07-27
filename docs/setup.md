@@ -111,7 +111,7 @@ ssh master cluster node and confirm cluster are ready state
 To avoid ongoing AWS cloud charges, clear out your application Infrastructure
 
 ```bash
-cd ../terraform
+cd /terraform
 terraform destroy --auto-approve
 ```
 *This removes all Terraform-managed AWS resources created for CloudVault.*
