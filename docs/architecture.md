@@ -1,11 +1,33 @@
-# Architecture
+# CloudVault - Multi Tier Architecture
 
-CloudVault is a cloud-native 3-tier file storage platform built on AWS using Infrastructure as Code (Terraform) and configured with Ansible, with delivery automated through Jenkins.
+CloudVault is a cloud-native multi tier file storage platform built on AWS using Infrastructure as Code (Terraform) and configured with Ansible, with delivery automated through Jenkins.
 The application runs on Kubernetes, stores uploaded files in Amazon S3, and saves file metadata in Amazon RDS (MySQL).
 
-The architecture is designed to be modular, secure, scalable, and easy to maintain while keeping AWS costs under control.
+The architecture separates components into Presentation, Application, and Database tiers to improve security, scalability, and maintainability.
 
 ---
+
+### Networking layer
+
+**Amazon VPC**
+A dedicated Virtual Private Cloud (VPC) provides network isolation for all infrastructure component.
+
+VPC CIDR : `10.0.0.0/16`
+Region : `ap-south-1`
+
+**Subnet Design**
+The infrastructure is divided into multiple subnet tiers.
+
+| Subnet Type | CIDR Block | Purpose | Network Exposure |
+| :--- | :--- | :--- | :--- |
+| **Public Subnet 1** | `10.0.0.0/20` | Application Load Balancer (AZ 1) | Public (Internet Facing) |
+| **Public Subnet 2** | `10.0.16.0/20` | Application Load Balancer (AZ 2) | Public (Internet Facing) |
+| **Web Subnet 1** | `10.0.32.0/20` | Kubernetes Worker Nodes (AZ 1) | Private (No Direct IGW) |
+| **Web Subnet 2** | `10.0.48.0/20` | Kubernetes Worker Nodes (AZ 2) | Private (No Direct IGW) |
+| **App Subnet 1** | `10.0.64.0/20` | Application Services (AZ 1) | Private (Internal Only) |
+| **App Subnet 2** | `10.0.80.0/20` | Application Services (AZ 2) | Private (Internal Only) |
+| **Database Subnet 1** | `10.0.96.0/20` | Amazon RDS Primary Instance | Private (Isolated) |
+| **Database Subnet 2** | `10.0.112.0/20` | Amazon RDS Standby Instance | Private (Isolated) |
 
 ## Architecture Diagram
 
@@ -19,13 +41,13 @@ CloudVault v1.0 uses three EC2 instances. The CI/CD server manages the deploymen
 
 | EC2 Instance | Instance Type | Hosted Services | Purpose |
 |-------------|---------------|-----------------|---------|
-| **CI/CD Server** | c7i-flex.large | Jenkins, SonarQube, Docker, Ansible, Trivy, Kubernetes Control Plane (`kubeadm`) | Builds, tests, scans, and deploys the application while managing the Kubernetes cluster. |
+| **CI/CD Server** | m7i-flex.large | Jenkins, SonarQube, Docker, Ansible, Trivy, Kubernetes Control Plane (`kubeadm`) | Builds, tests, scans, and deploys the application while managing the Kubernetes cluster. |
 | **Worker Node 1** | t3.small | Docker, Kubernetes Worker (`kubelet`), Flask Application Pods | Hosts CloudVault application workloads and serves user requests. |
 | **Worker Node 2** | t3.small | Docker, Kubernetes Worker (`kubelet`), Flask Application Pods | Provides high availability and scales application workloads alongside Worker Node 1. |
 
 ## Design Decisions
 
-- **c7i-flex.large** was selected for the CI/CD server because Jenkins and SonarQube require more memory than CPU. The additional 8 GiB RAM provides smoother builds and analysis.
+- **m7i-flex.large** was selected for the CI/CD server because Jenkins and SonarQube require more memory than CPU. The additional 8 GiB RAM provides smoother builds and analysis.
 - **t3.small** instances were selected for Kubernetes worker nodes because they are cost-effective for development, testing, and portfolio-scale workloads while providing sufficient resources for the application pods.
 - The architecture can be scaled by upgrading worker nodes or enabling Auto Scaling Groups as workload increases.
 
@@ -68,6 +90,7 @@ All AWS infrastructure is provisioned using reusable Terraform modules.
 | **rds** | Amazon RDS MySQL |
 | **s3** | Amazon S3 Bucket |
 | **cloudfront** | CloudFront Distribution |
+| **secret manager** | AWS secret manager |
 
 ---
 
@@ -123,10 +146,8 @@ CloudVault follows security best practices throughout the infrastructure.
 
 ## Monitoring
 
-| Tool | Purpose |
-|------|---------|
-| Prometheus | Collects infrastructure and application metrics |
-| Grafana | Visualizes metrics through dashboards |
+**Prometheus** Collects infrastructure and application metrics
+**Grafana** Visualizes metrics through dashboards
 
 ---
 
@@ -149,3 +170,33 @@ The infrastructure is designed to provide a balance between performance and cost
 | **Per Day** | **~₹390–430** |
 
 > **Note:** Costs are approximate for the Mumbai (`ap-south-1`) region and may vary based on storage, data transfer, and actual AWS usage.
+
+## Architecture Traffic flow
+**Internet - CloudFront - Public ALB (HTTP) - Web Target Group - Kubernetes Worker node - NodePort 30080 - Kubernetes Service - Flask Pod - RDS + S3**
+
+## AWS Secrets Manager
+
+### aws secret manager flow
+**Terraform - Creates AWS Secrets Manager - Jenkins (IAM Role) - Reads Secrets - Creates Kubernetes Secret - Flask Pods**
+
+AWS Secrets Manager securely stores application secrets such as database credentials, secret keys, AWS region, and S3 bucket information. During deployment, the Jenkins pipeline retrieves these secrets using the EC2 IAM Role and dynamically creates Kubernetes Secrets, eliminating the need to manually manage sensitive credentials in Jenkins.
+
+### Benefits
+
+- Centralized secret management
+- Eliminates manual Jenkins credential updates
+- Uses IAM Role authentication instead of AWS access keys
+- Improves security by removing hardcoded credentials
+- Simplifies secret rotation and infrastructure updates
+
+### IAM Role Authentication
+- Both the Jenkins server and Kubernetes worker nodes use IAM Roles to securely access AWS services.
+- Jenkins gets application secrets from AWS Secrets Manager using its IAM Role.
+- Flask application pods upload and download files from Amazon S3 without storing AWS Access Keys.
+- AWS automatically provides temporary credentials through the EC2 Instance Metadata Service (IMDS), making access secure and following AWS best practices.
+
+### Security Features
+- AWS Secrets Manager for centralized application secret management.
+- IAM Roles for secure access to AWS services without hardcoded credentials.
+- Dynamic Kubernetes Secret creation during CI/CD deployment.
+- No AWS Access Keys stored in the application, GitHub repository, or Jenkins credentials.
