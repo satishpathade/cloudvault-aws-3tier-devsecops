@@ -13,7 +13,7 @@ The entire infrastructure is provisioned using Terraform, configured using Ansib
 ## AWS Architecture
 ![3-tier-aws-architecture](architecture/3-tier-aws-architecture.png)
 
-**[Read aws architecture in detailed. ](docs/architecture.md)**
+**[Read aws architecture in detailed. ](docs/architecture.md)** 
 **[Setup project guide](docs/setup.md)**
 
 ## Project Features
@@ -84,7 +84,7 @@ The entire infrastructure is provisioned using Terraform, configured using Ansib
 
 **GitHub → Jenkins → SonarQube → Docker Build → Trivy Scan → Docker Hub → Kubernetes Deployment**
 
-![CI/CD Pipeline](architecture/CloudVault-cicd-flow.png)
+![CI/CD Pipeline flow](architecture/cloudvault-cicd-pipeline-flow.png)
 
 ## Future Enhancements
 
