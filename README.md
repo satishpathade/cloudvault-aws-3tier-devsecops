@@ -84,7 +84,7 @@ The entire infrastructure is provisioned using Terraform, configured using Ansib
 
 **GitHub → Jenkins → SonarQube → Docker Build → Trivy Scan → Docker Hub → Kubernetes Deployment**
 
-![CI/CD Pipeline flow](architecture/cloudvault-cicd-pipeline-flow.png)
+![CI/CD pipeline flow](architecture/cloudvault-cicd-pipeline-flow.png)
 
 ## Future Enhancements
 
