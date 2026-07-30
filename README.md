@@ -13,8 +13,8 @@ The entire infrastructure is provisioned using Terraform, configured using Ansib
 ## AWS Architecture
 ![3-tier-aws-architecture](architecture/3-tier-aws-architecture.png)
 
-**[Read aws architecture in detailed. ](docs/architecture.md)** 
-**[Setup project guide](docs/setup.md)**
+- **[Read aws architecture](docs/architecture.md)** 
+- **[Project setup guide](docs/setup.md)**
 
 ## Project Features
 
