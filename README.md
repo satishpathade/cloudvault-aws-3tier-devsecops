@@ -14,6 +14,7 @@ The entire infrastructure is provisioned using Terraform, configured using Ansib
 ![3-tier-aws-architecture](architecture/3-tier-aws-architecture.png)
 
 **[Read aws architecture in detailed. ](docs/architecture.md)**
+**[Setup project](docs/setup.md)**
 
 ## Project Features
 
@@ -91,7 +92,7 @@ The entire infrastructure is provisioned using Terraform, configured using Ansib
 - Implement a complete AWS 3-tier architecture.
 - Add Kubernetes Ingress Controller.
 - Implement Horizontal Pod Autoscaler (HPA).
-- Integrate AWS Secrets Manager for secret management.
+- Integrate AWS Secrets Manager for secret management. **Done**
 - Integration with AI-Powered Log Analysis for real-time monitoring and troubleshooting.
 
 ## Project Status
