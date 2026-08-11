@@ -11,7 +11,8 @@ CloudVault enables users to upload and manage files through a web interface. Upl
 The entire infrastructure is provisioned using Terraform, configured using Ansible, and deployed through an automated Jenkins CI/CD pipeline, ensuring a scalable, secure, and cloud-native deployment workflow. 
 
 ## AWS Architecture
-![3-tier-aws-architecture](architecture/3-tier-aws-architecture.png)
+
+![3tier-aws-architecturet](architecture/3-tier-aws-architecture.png)
 
 - **[Read aws architecture](docs/architecture.md)** 
 - **[Project setup guide](docs/setup.md)**
