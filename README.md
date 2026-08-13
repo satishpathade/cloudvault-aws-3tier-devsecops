@@ -87,6 +87,11 @@ The entire infrastructure is provisioned using Terraform, configured using Ansib
 
 ![CI/CD pipeline flow](architecture/cloudvault-cicd-pipeline-flow.png)
 
+## CloudVault Traffic Management
+
+1. **Internet-facing ALB**
+The application Load Balancer(ALB) is the first tarffic management layer. It's main job is to recieve request from users and distributes them acress availabe application target.
+
 ## Future Enhancements
 
 - Split the application into frontend and backend microservices.
