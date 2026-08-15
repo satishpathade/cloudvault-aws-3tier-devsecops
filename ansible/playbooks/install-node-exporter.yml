@@ -1,0 +1,7 @@
+---
+name : install node exporter
+host : all
+become : true
+
+roles :
+  - node_exporter
