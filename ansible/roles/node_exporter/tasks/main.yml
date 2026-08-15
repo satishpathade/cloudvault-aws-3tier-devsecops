@@ -1,0 +1,29 @@
+---
+- name: Pull Node Exporter image
+  community.docker.docker_image:
+    name: prom/node-exporter:latest
+    source: pull
+
+- name: Remove existing Node Exporter container
+  community.docker.docker_container:
+    name: node-exporter
+    state: absent
+
+- name: Run Node Exporter
+  community.docker.docker_container:
+    name: node-exporter
+    image: prom/node-exporter:latest
+    state: started
+    restart_policy: unless-stopped
+    network_mode: host
+    pid_mode: host
+
+    command:
+      - "--path.procfs=/host/proc"
+      - "--path.sysfs=/host/sys"
+      - "--path.rootfs=/host/root"
+
+    volumes:
+      - "/proc:/host/proc:ro"
+      - "/sys:/host/sys:ro"
+      - "/:/host/root:ro"
