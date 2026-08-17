@@ -92,6 +92,48 @@ The entire infrastructure is provisioned using Terraform, configured using Ansib
 1. **Internet-facing ALB**
 The application Load Balancer(ALB) is the first tarffic management layer. It's main job is to recieve request from users and distributes them acress availabe application target.
 
+## Monitoring 
+
+**Monitorig Tech Stack**
+1. Metrics Server : Kubernetes resource metrics and HPA
+2. kube-state-metrics : Watch Deployments, Pods, ReplicaSets, Nodes, Services, StatefulSets, DaemonSets expose their state to prometheus
+2. Node Exporter : EC2 linux host metrics (CPU, RAM, disk, network)
+3. Prometheus : Collect store and query monitoring metrics
+4. Grafana : Visualize Prometheus metrics
+ 
+
+**Monitoring Stages**
+1. Kubernetes Monitoring
+- Prometheus
+- Grafana
+- Node Exporter
+- kube-state-metrics
+
+2. Application monitoring
+- Flask metrics
+- Request count
+- Request latency
+- HTTP errors
+
+3. AWS Monitoring
+- EC2 
+- ALB 
+- RDS
+- S3
+
+4. Grafana Dashboards
+- Infrastructure dashboards
+- Kubernetes dashboards
+- Application dashboards
+- AWS/RDS dashboards
+
+5. Alerting
+- Pod State ex. CrashLoopBackOff
+- Node Status ex. node down
+- High CPU memory
+- RDS Resourse
+
+
 ## Future Enhancements
 
 - Split the application into frontend and backend microservices.
