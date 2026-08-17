@@ -31,7 +31,7 @@ The infrastructure is divided into multiple subnet tiers.
 
 ## Architecture Diagram
 
-![architecture](3tier-architecture.png)
+![3tier-aws-architecturet](architecture/3-tier-aws-architecture.png)
 
 ## Architecture Layers
 
