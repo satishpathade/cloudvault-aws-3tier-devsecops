@@ -46,6 +46,7 @@ Move to ansible playbook directory to automate server package installation and c
 `cd ../ansible`
 
 Run the complete configuration:
+`ansible-playbook playbooks/site.yml`
 `ansible-playbook -i inventory.ini playbooks/site.yml`
 
 ---
