@@ -1,7 +1,7 @@
 ---
-name : install node exporter
-host : all
-become : true
+- name: install node exporter
+  hosts: all
+  become: true
 
-roles :
-  - node_exporter
+  roles:
+    - node_exporter

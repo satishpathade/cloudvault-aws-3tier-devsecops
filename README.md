@@ -1,4 +1,4 @@
-## CloudVault - AWS Cloud-Native 3-Tier DevSecOps File Storage Platform
+# CloudVault - AWS Cloud-Native 3-Tier DevSecOps File Storage Platform
 
 CloudVault is a cloud-native file storage application inspired by services such as Google Drive and iCloud.
 
@@ -100,7 +100,6 @@ The application Load Balancer(ALB) is the first tarffic management layer. It's m
 2. Node Exporter : EC2 linux host metrics (CPU, RAM, disk, network)
 3. Prometheus : Collect store and query monitoring metrics
 4. Grafana : Visualize Prometheus metrics
- 
 
 **Monitoring Stages**
 1. Kubernetes Monitoring
@@ -133,6 +132,7 @@ The application Load Balancer(ALB) is the first tarffic management layer. It's m
 - High CPU memory
 - RDS Resourse
 
+---
 
 ## Future Enhancements
 
