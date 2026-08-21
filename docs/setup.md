@@ -104,6 +104,10 @@ ssh master cluster node and confirm cluster are ready state
   - Metadata is store in **Amazon RDS MySQL**
   - File is accessible through the application.
 
+3. Verify file 
+  - connect mysql 
+  - check files
+
 ---
 
 ### Destroy Infrastructure 
