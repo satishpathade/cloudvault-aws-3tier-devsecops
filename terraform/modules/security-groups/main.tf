@@ -113,6 +113,14 @@ resource "aws_security_group" "web" {
   }
 
   ingress {
+    description = "node-exporter"
+    from_port = "9100"
+    to_port = "9100"
+    protocol = "tcp"
+    security_groups = [aws_security_group.cicd.id]
+  }
+
+  ingress {
     description     = "node-to-node communication"
     from_port       = 30080
     to_port         = 30080
