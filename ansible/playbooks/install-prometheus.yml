@@ -1,6 +1,6 @@
 ---
 - name: Install Prometheus
-  hosts: app
+  hosts: cicd
   become: true
 
   roles:
