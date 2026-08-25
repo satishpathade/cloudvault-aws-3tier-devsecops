@@ -113,10 +113,10 @@ resource "aws_security_group" "web" {
   }
 
   ingress {
-    description = "node-exporter"
-    from_port = "9100"
-    to_port = "9100"
-    protocol = "tcp"
+    description     = "node-exporter"
+    from_port       = "9100"
+    to_port         = "9100"
+    protocol        = "tcp"
     security_groups = [aws_security_group.cicd.id]
   }
 
@@ -175,6 +175,14 @@ resource "aws_security_group" "app" {
     description     = "SSH from CICD"
     from_port       = 22
     to_port         = 22
+    protocol        = "tcp"
+    security_groups = [aws_security_group.cicd.id]
+  }
+
+  ingress {
+    description     = "node-exporter"
+    from_port       = "9100"
+    to_port         = "9100"
     protocol        = "tcp"
     security_groups = [aws_security_group.cicd.id]
   }
