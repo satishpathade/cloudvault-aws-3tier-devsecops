@@ -1,6 +1,6 @@
 ---
 - name: Install Grafana
-  hosts: web
+  hosts: cicd
   become: true
 
   roles:
