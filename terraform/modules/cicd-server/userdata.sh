@@ -1,5 +1,6 @@
 #!/bin/bash
 
+sudo hostname hostnamectl cicd-server
 sudo dnf update -y
 sudo dnf install -y git tree python3-pip ansible
 
